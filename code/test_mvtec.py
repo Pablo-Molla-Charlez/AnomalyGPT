@@ -18,6 +18,26 @@ command_args = parser.parse_args()
 
 
 describles = {}
+
+# Old describles
+"""describles['bottle'] = "This is a photo of a bottle for anomaly detection, which should be round, without any damage, flaw, defect, scratch, hole or broken part."
+describles['cable'] = "This is a photo of three cables for anomaly detection, cables cannot be missed or swapped, which should be without any damage, flaw, defect, scratch, hole or broken part."
+describles['capsule'] = "This is a photo of a capsule for anomaly detection, which should be black and orange, with print '500', without any damage, flaw, defect, scratch, hole or broken part."
+describles['carpet'] = "This is a photo of carpet for anomaly detection, which should be without any damage, flaw, defect, scratch, hole or broken part."
+describles['grid'] = "This is a photo of grid for anomaly detection, which should be without any damage, flaw, defect, scratch, hole or broken part."
+describles['hazelnut'] = "This is a photo of a hazelnut for anomaly detection, which should be without any damage, flaw, defect, scratch, hole or broken part."
+describles['leather'] = "This is a photo of leather for anomaly detection, which should be brown and without any damage, flaw, defect, scratch, hole or broken part."
+describles['metal_nut'] = "This is a photo of a metal nut for anomaly detection, which should be without any damage, flaw, defect, scratch, hole or broken part, and shouldn't be fliped."
+describles['pill'] = "This is a photo of a pill for anomaly detection, which should be white, with print 'FF' and red patterns, without any damage, flaw, defect, scratch, hole or broken part."
+describles['screw'] = "This is a photo of a screw for anomaly detection, which tail should be sharp, and without any damage, flaw, defect, scratch, hole or broken part."
+describles['tile'] = "This is a photo of tile for anomaly detection, which should be without any damage, flaw, defect, scratch, hole or broken part."
+describles['toothbrush'] = "This is a photo of a toothbrush for anomaly detection, which should be without any damage, flaw, defect, scratch, hole or broken part."
+describles['transistor'] = "This is a photo of a transistor for anomaly detection, which should be without any damage, flaw, defect, scratch, hole or broken part."
+describles['wood'] = "This is a photo of wood for anomaly detection, which should be brown with patterns, without any damage, flaw, defect, scratch, hole or broken part."
+describles['zipper'] = "This is a photo of a zipper for anomaly detection, which should be without any damage, flaw, defect, scratch, hole or broken part."
+"""
+
+# New generated descriptions added
 describles['bottle'] = "This is a photo of a bottle for anomaly detection, which should be round, without any damage, flaw, defect, scratch, hole or broken part."
 describles['cable'] = "This is a photo of three cables for anomaly detection, cables cannot be missed or swapped, which should be without any damage, flaw, defect, scratch, hole or broken part."
 describles['capsule'] = "This is a photo of a capsule for anomaly detection, which should be black and orange, with print '500', without any damage, flaw, defect, scratch, hole or broken part."
@@ -34,6 +54,13 @@ describles['transistor'] = "This is a photo of a transistor for anomaly detectio
 describles['wood'] = "This is a photo of wood for anomaly detection, which should be brown with patterns, without any damage, flaw, defect, scratch, hole or broken part."
 describles['zipper'] = "This is a photo of a zipper for anomaly detection, which should be without any damage, flaw, defect, scratch, hole or broken part."
 
+# 4 New Classes Added
+describles["ablation"] = "This is a photo of a blade for anomaly detection. A blade without ablations should have a smooth, uniform surface with no areas of material removal or wear. The edges should be sharp and intact, with no signs of pitting, erosion, or thinning. The entire blade should appear consistent in texture and color, indicating it is free from any ablation-related damage."
+describles["breakdown"] = "This is a photo of a blade for anomaly detection. A blade without breakdowns should maintain its structural integrity with no signs of cracking, chipping, or flaking. The blade should exhibit a uniform appearance, with no visible separations, detachment of layers, or deformation. The blade should appear robust and solid, free from any structural compromise."
+describles["fracture"] = "This is a photo of a blade for anomaly detection. A blade without fractures should have a continuous, unbroken surface with no visible cracks or splits. The blade should be seamless and sturdy, with no signs of stress marks or propagation lines that indicate potential fracture points. The entire blade should look solid and reliable, free from any fracturing damage."
+describles["groove"] = "This is a photo of a blade for anomaly detection. A blade without grooves should have a completely smooth and even surface with no indentations or carved-out lines. The blade's surface should be uniform and consistent, with no signs of unintended channels or depressions. The blade should appear flawlessly smooth, indicating it is free from any groove related imperfections."
+
+
 FEW_SHOT = command_args.few_shot 
 
 # init the model
@@ -41,7 +68,7 @@ args = {
     'model': 'openllama_peft',
     'imagebind_ckpt_path': '../pretrained_ckpt/imagebind_ckpt/imagebind_huge.pth',
     'vicuna_ckpt_path': '../pretrained_ckpt/vicuna_ckpt/7b_v0',
-    'anomalygpt_ckpt_path': './ckpt/train_visa/pytorch_model.pt',
+    'anomalygpt_ckpt_path': '/work/cyh_anomaly/anomalygpt/1AnomalyGPT/code/ckpt/train_mvtec/pytorch_model.pt',
     'delta_ckpt_path': '../pretrained_ckpt/pandagpt_ckpt/7b/pytorch_model.pt',
     'stage': 2,
     'max_tgt_len': 128,
@@ -84,6 +111,7 @@ def predict(
     else:
         prompt_text += f' Human: {input}'
 
+    #print("\n\n--------------IMAGE PATH:", image_path, "\n\n")
     response, pixel_output = model.generate({
         'prompt': prompt_text,
         'image_paths': [image_path] if image_path else [],
@@ -106,14 +134,20 @@ mask_transform = transforms.Compose([
                                 transforms.Resize((224, 224)),
                                 transforms.ToTensor()
                             ])
+# Old
+#CLASS_NAMES = ['bottle', 'cable', 'capsule', 'carpet', 'grid','hazelnut', 'leather', 'metal_nut', 'pill', 'screw','tile', 'toothbrush', 'transistor', 'wood', 'zipper']
 
-CLASS_NAMES = ['bottle', 'cable', 'capsule', 'carpet', 'grid','hazelnut', 'leather', 'metal_nut', 'pill', 'screw','tile', 'toothbrush', 'transistor', 'wood', 'zipper']
+
+# New
+CLASS_NAMES = ['ablation', 'bottle', 'breakdown', 'cable', 'capsule', 'carpet', 'fracture', 'grid', 'groove', 'hazelnut', 'leather', 'metal_nut', 'pill', 'screw','tile', 'toothbrush', 'transistor', 'wood', 'zipper']
+
 
 precision = []
 
 for c_name in CLASS_NAMES:
     normal_img_paths = ["../data/mvtec_anomaly_detection/"+c_name+"/train/good/"+str(command_args.round * 4).zfill(3)+".png", "../data/mvtec_anomaly_detection/"+c_name+"/train/good/"+str(command_args.round * 4 + 1).zfill(3)+".png",
                         "../data/mvtec_anomaly_detection/"+c_name+"/train/good/"+str(command_args.round * 4 + 2).zfill(3)+".png", "../data/mvtec_anomaly_detection/"+c_name+"/train/good/"+str(command_args.round * 4 + 3).zfill(3)+".png"]
+
     normal_img_paths = normal_img_paths[:command_args.k_shot]
     right = 0
     wrong = 0
@@ -122,10 +156,13 @@ for c_name in CLASS_NAMES:
     i_pred = []
     i_label = []
     for root, dirs, files in os.walk(root_dir):
+        #print("ROOT:", root, "DIRECTORY:", dirs, "FILES:", files)
         for file in files:
             file_path = os.path.join(root, file)
+            #print("FILE:", file, "FILE_PATH:", file_path)
             if "test" in file_path and 'png' in file and c_name in file_path:
                 if FEW_SHOT:
+                    #print("\n\n--------------Predict/Arguments:", describles[c_name] + ' ' + input, file_path, normal_img_paths, 512, 0.1, 1.0, [], [], "\n\n")
                     resp, anomaly_map = predict(describles[c_name] + ' ' + input, file_path, normal_img_paths, 512, 0.1, 1.0, [], [])
                 else:
                     resp, anomaly_map = predict(describles[c_name] + ' ' + input, file_path, [], 512, 0.1, 1.0, [], [])

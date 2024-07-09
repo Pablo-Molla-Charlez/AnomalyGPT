@@ -4,7 +4,7 @@ from .sft_dataset import *
 from .mvtec import *
 from .visa import VisaDataset
 from . import all_supervised_with_cn
-
+from torch.utils.data import Subset
 '''
 def get_tokenizer(model):
     tokenizer = LlamaTokenizer.from_pretrained(model)
@@ -13,6 +13,8 @@ def get_tokenizer(model):
     return tokenizer
 '''
 
+
+""" ORIGINAL load_sft_dataset with complete dataset 
 def load_sft_dataset(args):
     '''
     tokenizer = get_tokenizer(args['model_path'])
@@ -41,7 +43,45 @@ def load_sft_dataset(args):
         pin_memory=False
     )
     return data, iter_, sampler
+"""
+class CustomSubset(Subset):
+    def __init__(self, dataset, indices):
+        super(CustomSubset, self).__init__(dataset, indices)
+        self.collate = dataset.collate
+    def collate(self, batch):
+        return self.dataset.collate(batch)
 
+""" NEW load_sft_dataset with limited samples """
+def load_sft_dataset(args, limit_samples=None):
+    data = SupervisedDataset(args['data_path'], args['image_root_path'])
+
+    if limit_samples is not None:
+        indices = list(range(len(data)))
+        subset_indices = indices[:limit_samples]
+        data = CustomSubset(data, subset_indices)
+
+    sampler = torch.utils.data.RandomSampler(data)
+    world_size = torch.distributed.get_world_size()
+    rank = torch.distributed.get_rank()
+    batch_size = args['world_size'] * args['dschf'].config['train_micro_batch_size_per_gpu']
+    batch_sampler = DistributedBatchSampler(
+        sampler, 
+        batch_size,
+        True,
+        rank,
+        world_size
+    )
+    iter_ = DataLoader(
+        data, 
+        batch_sampler=batch_sampler, 
+        num_workers=1,
+        collate_fn=data.collate, 
+        pin_memory=False
+    )
+    return data, iter_, sampler
+
+
+""" ORIGINAL load_mvtec_dataset with complete dataset
 def load_mvtec_dataset(args):
     '''
     tokenizer = get_tokenizer(args['model_path'])
@@ -50,6 +90,37 @@ def load_mvtec_dataset(args):
     data = globals()[dataset_name](data_path, tokenizer, args['max_length']) #SupervisedDataset
     '''
     data = MVtecDataset('../data/mvtec_anomaly_detection')
+
+    sampler = torch.utils.data.RandomSampler(data)
+    world_size = torch.distributed.get_world_size()
+    rank = torch.distributed.get_rank()
+    batch_size = args['world_size'] * args['dschf'].config['train_micro_batch_size_per_gpu']
+    batch_sampler = DistributedBatchSampler(
+        sampler, 
+        batch_size,
+        True,
+        rank,
+        world_size
+    )
+    iter_ = DataLoader(
+        data, 
+        batch_sampler=batch_sampler, 
+        num_workers=8,
+        collate_fn=data.collate, 
+        pin_memory=False
+    )
+    return data, iter_, sampler
+"""
+
+""" NEW load_mvtec_dataset with limited samples """
+
+def load_mvtec_dataset(args, limit_samples=None):
+    data = MVtecDataset('../data/mvtec_anomaly_detection')
+
+    if limit_samples is not None:
+        indices = list(range(len(data)))
+        subset_indices = indices[:limit_samples]
+        data = CustomSubset(data, subset_indices)
 
     sampler = torch.utils.data.RandomSampler(data)
     world_size = torch.distributed.get_world_size()

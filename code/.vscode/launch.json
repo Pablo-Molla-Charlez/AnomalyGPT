@@ -1,0 +1,37 @@
+{
+    // 使用 IntelliSense 以得知可用的屬性。
+    // 暫留以檢視現有屬性的描述。
+    // 如需詳細資訊，請瀏覽: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "waue_train_mvtec",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/waue_train_mvtec.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--model",
+                "openllama_peft",
+                "--stage",
+                "1",
+                "--imagebind_ckpt_path",
+                "../pretrained_ckpt/imagebind_ckpt/imagebind_huge.pth",
+                "--vicuna_ckpt_path",
+                "../pretrained_ckpt/vicuna_ckpt/7b_v0/",
+                "--delta_ckpt_path",
+                "../pretrained_ckpt/pandagpt_ckpt/7b/pytorch_model.pt",
+                "--max_tgt_len",
+                "1024",
+                "--data_path",
+                "../data/pandagpt4_visual_instruction_data.json",
+                "--image_root_path",
+                "../data/images/",
+                "--save_path",
+                "./ckpt/train_mvtec_0530/",
+                "--log_path",
+                "./ckpt/train_mvtec/log_rest/"
+            ]
+        }
+    ]
+}

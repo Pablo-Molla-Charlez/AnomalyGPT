@@ -69,8 +69,8 @@ def main(**args):
             filemode='w'
         )
     
-    train_data, train_iter, sampler = load_mvtec_dataset(args)
-    train_data_sft, train_iter_sft, sampler = load_sft_dataset(args)
+    train_data, train_iter, sampler = load_mvtec_dataset(args, None)
+    train_data_sft, train_iter_sft, sampler = load_sft_dataset(args, None)
 
     length = args['epochs'] * len(train_data) // args['world_size'] // dschf.config['train_micro_batch_size_per_gpu']
     total_steps = 2 * args['epochs'] * len(train_data) // dschf.config['train_batch_size']
@@ -105,6 +105,9 @@ def main(**args):
         # save at the end of the training
         torch.distributed.barrier()
         agent.save_model(args['save_path'], 0)
+    
+    # Plot loss after training
+    agent.plot_loss()
 
 if __name__ == "__main__":
     args = parser_args()

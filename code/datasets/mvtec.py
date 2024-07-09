@@ -4,37 +4,79 @@ import cv2
 import numpy as np
 import torch
 import torchvision.transforms as transforms
-from PIL import Image
-
+from PIL import Image, UnidentifiedImageError # UnidentifiedImageError to manage try/except block
 
 from .self_sup_tasks import patch_ex
 
+""" OLD
 WIDTH_BOUNDS_PCT = {'bottle':((0.03, 0.4), (0.03, 0.4)), 'cable':((0.05, 0.4), (0.05, 0.4)), 'capsule':((0.03, 0.15), (0.03, 0.4)), 
                     'hazelnut':((0.03, 0.35), (0.03, 0.35)), 'metal_nut':((0.03, 0.4), (0.03, 0.4)), 'pill':((0.03, 0.2), (0.03, 0.4)), 
                     'screw':((0.03, 0.12), (0.03, 0.12)), 'toothbrush':((0.03, 0.4), (0.03, 0.2)), 'transistor':((0.03, 0.4), (0.03, 0.4)), 
                     'zipper':((0.03, 0.4), (0.03, 0.2)), 
                     'carpet':((0.03, 0.4), (0.03, 0.4)), 'grid':((0.03, 0.4), (0.03, 0.4)), 
                     'leather':((0.03, 0.4), (0.03, 0.4)), 'tile':((0.03, 0.4), (0.03, 0.4)), 'wood':((0.03, 0.4), (0.03, 0.4))}
+"""
 
+# Specifies the acceptable width bounds for objects in percentage terms relative to the image size
+WIDTH_BOUNDS_PCT = {'bottle':((0.03, 0.4), (0.03, 0.4)), 'cable':((0.05, 0.4), (0.05, 0.4)), 'capsule':((0.03, 0.15), (0.03, 0.4)), 
+                    'hazelnut':((0.03, 0.35), (0.03, 0.35)), 'metal_nut':((0.03, 0.4), (0.03, 0.4)), 'pill':((0.03, 0.2), (0.03, 0.4)), 
+                    'screw':((0.03, 0.12), (0.03, 0.12)), 'toothbrush':((0.03, 0.4), (0.03, 0.2)), 'transistor':((0.03, 0.4), (0.03, 0.4)), 
+                    'zipper':((0.03, 0.4), (0.03, 0.2)), 
+                    'carpet':((0.03, 0.4), (0.03, 0.4)), 'grid':((0.03, 0.4), (0.03, 0.4)), 
+                    'leather':((0.03, 0.4), (0.03, 0.4)), 'tile':((0.03, 0.4), (0.03, 0.4)), 'wood':((0.03, 0.4), (0.03, 0.4)), 
+                    "ablation":((0.03, 0.4), (0.03, 0.4)), "breakdown":((0.03, 0.4), (0.03, 0.4)), "fracture":((0.03, 0.4), (0.03, 0.4)), "groove":((0.03, 0.4), (0.03, 0.4)) }
 
+""" OLD
+# Number of patches/segments to be extracted from each image for a given category
 NUM_PATCHES = {'bottle':3, 'cable':3, 'capsule':3, 'hazelnut':3, 'metal_nut':3, 
                'pill':3, 'screw':4, 'toothbrush':3, 'transistor':3, 'zipper':4,
                'carpet':4, 'grid':4, 'leather':4, 'tile':4, 'wood':4}
+"""
 
+NUM_PATCHES = {'bottle':3, 'cable':3, 'capsule':3, 'hazelnut':3, 'metal_nut':3, 
+               'pill':3, 'screw':4, 'toothbrush':3, 'transistor':3, 'zipper':4,
+               'carpet':4, 'grid':4, 'leather':4, 'tile':4, 'wood':4, 
+               "ablation": 4, "breakdown": 4, "fracture": 4, "groove": 4}
+
+""" OLD
 # k, x0 pairs
 INTENSITY_LOGISTIC_PARAMS = {'bottle':(1/12, 24), 'cable':(1/12, 24), 'capsule':(1/2, 4), 'hazelnut':(1/12, 24), 'metal_nut':(1/3, 7), 
             'pill':(1/3, 7), 'screw':(1, 3), 'toothbrush':(1/6, 15), 'transistor':(1/6, 15), 'zipper':(1/6, 15),
             'carpet':(1/3, 7), 'grid':(1/3, 7), 'leather':(1/3, 7), 'tile':(1/3, 7), 'wood':(1/6, 15)}
+"""
 
+# The dictionary contains pairs of parameters of a logistic function to normalize the intensity of the pictures - chosen same params as bottle because similar intensity
+INTENSITY_LOGISTIC_PARAMS = {'bottle':(1/12, 24), 'cable':(1/12, 24), 'capsule':(1/2, 4), 'hazelnut':(1/12, 24), 'metal_nut':(1/3, 7), 
+            'pill':(1/3, 7), 'screw':(1, 3), 'toothbrush':(1/6, 15), 'transistor':(1/6, 15), 'zipper':(1/6, 15),
+            'carpet':(1/3, 7), 'grid':(1/3, 7), 'leather':(1/3, 7), 'tile':(1/3, 7), 'wood':(1/6, 15),
+            "ablation": (1/12, 24), "breakdown": (1/12, 24), "fracture": (1/12, 24), "groove": (1/12, 24)}
+
+""" OLD
 # bottle is aligned but it's symmetric under rotation
 UNALIGNED_OBJECTS = ['bottle', 'hazelnut', 'metal_nut', 'screw']
+"""
 
+UNALIGNED_OBJECTS = ['bottle', 'hazelnut', 'metal_nut', 'screw', "ablation", "breakdown", "fracture", "groove"]
+
+""" OLD
 # brightness, threshold pairs
 BACKGROUND = {'bottle':(200, 60), 'screw':(200, 60), 'capsule':(200, 60), 'zipper':(200, 60), 
               'hazelnut':(20, 20), 'pill':(20, 20), 'toothbrush':(20, 20), 'metal_nut':(20, 20)}
+"""
 
+BACKGROUND = {'bottle':(200, 60), 'screw':(200, 60), 'capsule':(200, 60), 'zipper':(200, 60), 
+              'hazelnut':(20, 20), 'pill':(20, 20), 'toothbrush':(20, 20), 'metal_nut':(20, 20),
+              "ablation": (200, 60), "breakdown": (200, 60), "fracture": (200, 60), "groove": (200, 60)}
+
+""" OLD
 OBJECTS = ['bottle', 'cable', 'capsule', 'hazelnut', 'metal_nut', 
             'pill', 'screw', 'toothbrush', 'transistor', 'zipper']
+"""
+
+OBJECTS = ['bottle', 'cable', 'capsule', 'hazelnut', 'metal_nut', 
+            'pill', 'screw', 'toothbrush', 'transistor', 'zipper', "ablation", "breakdown", "fracture", "groove"]
+
+
 TEXTURES = ['carpet', 'grid', 'leather', 'tile', 'wood']
 
 describles = {}
@@ -54,8 +96,40 @@ describles['transistor'] = "This is a photo of a transistor for anomaly detectio
 describles['wood'] = "This is a photo of wood for anomaly detection, which should be brown with patterns, without any damage, flaw, defect, scratch, hole or broken part."
 describles['zipper'] = "This is a photo of a zipper for anomaly detection, which should be without any damage, flaw, defect, scratch, hole or broken part."
 
+# GPT4o Generated descriptions
+describles["ablation"] = "This is a photo of a blade for anomaly detection. A blade without ablations should have a smooth, uniform surface with no areas of material removal or wear. The edges should be sharp and intact, with no signs of pitting, erosion, or thinning. The entire blade should appear consistent in texture and color, indicating it is free from any ablation-related damage."
+describles["breakdown"] = "This is a photo of a blade for anomaly detection. A blade without breakdowns should maintain its structural integrity with no signs of cracking, chipping, or flaking. The blade should exhibit a uniform appearance, with no visible separations, detachment of layers, or deformation. The blade should appear robust and solid, free from any structural compromise."
+describles["fracture"] = "This is a photo of a blade for anomaly detection. A blade without fractures should have a continuous, unbroken surface with no visible cracks or splits. The blade should be seamless and sturdy, with no signs of stress marks or propagation lines that indicate potential fracture points. The entire blade should look solid and reliable, free from any fracturing damage."
+describles["groove"] = "This is a photo of a blade for anomaly detection. A blade without grooves should have a completely smooth and even surface with no indentations or carved-out lines. The blade's surface should be uniform and consistent, with no signs of unintended channels or depressions. The blade should appear flawlessly smooth, indicating it is free from any groove related imperfections."
 
 class MVtecDataset(Dataset):
+    """
+    # Old __init__ without changes
+    def __init__(self, root_dir: str):*
+        self.root_dir = root_dir
+        # self.transform = transform
+        self.transform = transforms.Resize(
+                                (224, 224), interpolation=transforms.InterpolationMode.BICUBIC
+                            )
+        
+        self.norm_transform = transforms.Compose(
+                            [
+                                transforms.ToTensor(),
+                                transforms.Normalize(
+                                    mean=(0.48145466, 0.4578275, 0.40821073),
+                                    std=(0.26862954, 0.26130258, 0.27577711),),])
+
+        self.paths = []
+        self.x = []
+        for root, dirs, files in os.walk(root_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                if "train" in file_path and "good" in file_path and 'png' in file:
+                    self.paths.append(file_path)
+                    self.x.append(self.transform(Image.open(file_path).convert('RGB')))
+        self.prev_idx = np.random.randint(len(self.paths))"""
+
+    # New __init__ with changes including try/except block to skip bugged images
     def __init__(self, root_dir: str):
         self.root_dir = root_dir
         # self.transform = transform
@@ -68,10 +142,7 @@ class MVtecDataset(Dataset):
                                 transforms.ToTensor(),
                                 transforms.Normalize(
                                     mean=(0.48145466, 0.4578275, 0.40821073),
-                                    std=(0.26862954, 0.26130258, 0.27577711),
-                                ),
-                            ]
-                        )
+                                    std=(0.26862954, 0.26130258, 0.27577711),),])
 
         self.paths = []
         self.x = []
@@ -79,8 +150,15 @@ class MVtecDataset(Dataset):
             for file in files:
                 file_path = os.path.join(root, file)
                 if "train" in file_path and "good" in file_path and 'png' in file:
-                    self.paths.append(file_path)
-                    self.x.append(self.transform(Image.open(file_path).convert('RGB')))
+                    try:
+                        image = Image.open(file_path).convert('RGB')
+                        self.paths.append(file_path)
+                        self.x.append(self.transform(image))
+                    except UnidentifiedImageError:
+                        print(f"Skipping corrupted image file: {file_path}")
+                    except Exception as e:
+                        print(f"Unexpected error loading image {file_path}: {e}")
+
 
         self.prev_idx = np.random.randint(len(self.paths))
 
@@ -90,6 +168,8 @@ class MVtecDataset(Dataset):
     def __getitem__(self, index):
 
         img_path, x = self.paths[index], self.x[index]
+
+        #print("\n\nIMAGE PATH:",img_path, "\n\n")
         class_name = img_path.split('/')[-4]
 
         self_sup_args={'width_bounds_pct': WIDTH_BOUNDS_PCT.get(class_name),

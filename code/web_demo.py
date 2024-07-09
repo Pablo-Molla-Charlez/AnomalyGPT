@@ -24,9 +24,11 @@ args = {
 }
 
 model = OpenLLAMAPEFTModel(**args)
-delta_ckpt = torch.load(args['delta_ckpt_path'], map_location=torch.device('cpu'))
+#delta_ckpt = torch.load(args['delta_ckpt_path'], map_location=torch.device('cpu'))
+delta_ckpt = torch.load(args['delta_ckpt_path'], map_location=torch.device('cuda'))
 model.load_state_dict(delta_ckpt, strict=False)
-delta_ckpt = torch.load(args['anomalygpt_ckpt_path'], map_location=torch.device('cpu'))
+#delta_ckpt = torch.load(args['anomalygpt_ckpt_path'], map_location=torch.device('cpu'))
+delta_ckpt = torch.load(args['anomalygpt_ckpt_path'], map_location=torch.device('cuda'))
 model.load_state_dict(delta_ckpt, strict=False)
 model = model.eval().half().cuda()
 
@@ -236,4 +238,5 @@ with gr.Blocks() as demo:
     ], show_progress=True)
 
 
-demo.queue().launch()
+#demo.queue().launch() # waue 
+demo.queue().launch(server_name="0.0.0.0") # waue 

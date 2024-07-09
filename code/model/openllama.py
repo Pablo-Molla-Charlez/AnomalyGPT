@@ -7,11 +7,19 @@ from .AnomalyGPT_models import LinearLayer, PromptLearner
 from transformers import StoppingCriteria, StoppingCriteriaList
 from utils.loss import FocalLoss, BinaryDiceLoss
 import kornia as K
-
+from peft import LoraConfig, TaskType, get_peft_model # waue
+from transformers import LlamaTokenizer  # waue
 import torch
 from torch.nn.utils import rnn
 
+#Old
+""" 
 CLASS_NAMES = ['bottle', 'cable', 'capsule', 'carpet', 'grid', 'hazelnut', 'leather', 'metal nut', 'pill', 'screw', 'tile', 'toothbrush', 'transistor', 'wood', 'zipper', 'object',
+               'candle', 'cashew', 'chewinggum', 'fryum', 'macaroni', 'pcb', 'pipe fryum']
+"""
+
+# New
+CLASS_NAMES = ['ablation', 'bottle', 'breakdown', 'cable', 'capsule', 'carpet', 'fracture', 'grid', 'groove', 'hazelnut', 'leather', 'metal nut', 'pill', 'screw', 'tile', 'toothbrush', 'transistor', 'wood', 'zipper', 'object',
                'candle', 'cashew', 'chewinggum', 'fryum', 'macaroni', 'pcb', 'pipe fryum']
 
 prompt_normal = ['{}', 'flawless {}', 'perfect {}', 'unblemished {}', '{} without flaw', '{} without defect', '{} without damage']
@@ -28,7 +36,14 @@ prompt_templates = ['a photo of a {}.', 'a photo of the {}.']
 #                         'a photo of the {} for visual insprction.', 'a photo of a {} for visual insprction.',
 #                         'a photo of the {} for anomaly detection.', 'a photo of a {} for anomaly detection.'
 #                         ]
+
+# old
+"""
 objs = ['bottle', 'cable', 'capsule', 'carpet', 'grid', 'hazelnut', 'leather', 'metal nut', 'pill', 'screw', 'tile', 'toothbrush', 'transistor', 'wood', 'zipper', 'object',
+        'candle', 'cashew', 'chewinggum', 'fryum', 'macaroni', 'pcb', 'pipe fryum', 'macaroni1', 'macaroni2','pcb1', 'pcb2', 'pcb3', 'pcb4', 'capsules']
+"""
+
+objs = ['ablation', 'bottle', 'breakdown', 'cable', 'capsule', 'carpet', 'fracture', 'grid', 'groove', 'hazelnut', 'leather', 'metal nut', 'pill', 'screw', 'tile', 'toothbrush', 'transistor', 'wood', 'zipper', 'object',
         'candle', 'cashew', 'chewinggum', 'fryum', 'macaroni', 'pcb', 'pipe fryum', 'macaroni1', 'macaroni2','pcb1', 'pcb2', 'pcb3', 'pcb4', 'capsules']
 
 prompt_sentences = {}
@@ -53,6 +68,10 @@ def encode_text_with_prompt_ensemble(model, obj, device):
     normal_sentences = []
     abnormal_sentences = []
     for idx in range(len(obj)):
+        
+        #print("\n OBJECT: ", obj[idx])
+        #print("\n prompt_sentences: ", prompt_sentences[obj[idx]])
+
         sentence = prompt_sentences[obj[idx].replace('_', ' ')]
         normal_sentences.append(sentence[0])
         abnormal_sentences.append(sentence[1])

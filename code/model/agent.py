@@ -1,4 +1,5 @@
 from header import *
+import matplotlib.pyplot as plt
 
 class DeepSpeedAgent:
     
@@ -8,8 +9,6 @@ class DeepSpeedAgent:
         self.model = model
         self.load_stage_1_parameters(args["delta_ckpt_path"])
 
-
-
         for name, param in self.model.named_parameters():
             param.requires_grad = False
 
@@ -18,9 +17,6 @@ class DeepSpeedAgent:
 
         for name, param in self.model.prompt_learner.named_parameters():
             param.requires_grad = True
-
-
-
 
         # load config parameters of deepspeed
         ds_params = json.load(open(self.args['ds_config_path']))
@@ -34,6 +30,9 @@ class DeepSpeedAgent:
             args=types.SimpleNamespace(**args)
         )
 
+        # Initialize list to store loss values
+        self.loss_list = []
+
     @torch.no_grad()
     def predict(self, batch):
         self.model.eval()
@@ -46,6 +45,10 @@ class DeepSpeedAgent:
 
         self.ds_engine.backward(loss)
         self.ds_engine.step()
+
+        # Store loss value
+        self.loss_list.append(loss.item())
+
         pbar.set_description(f'[!] loss: {round(loss.item(), 4)}; token_acc: {round(mle_acc*100, 2)}')
         pbar.update(1)
         if self.args['local_rank'] == 0 and self.args['log_path'] and current_step % self.args['logging_step'] == 0:
@@ -79,3 +82,11 @@ class DeepSpeedAgent:
     def load_stage_1_parameters(self, path):
         delta_ckpt = torch.load(path, map_location=torch.device('cpu'))
         self.model.load_state_dict(delta_ckpt, strict=False)
+
+    def plot_loss(self):
+        plt.plot(self.loss_list)
+        plt.xlabel('Iterations')
+        plt.ylabel('Loss')
+        plt.title('Training Loss Over Time')
+        plt.savefig('loss_plot.png')  # Save the plot as a PNG file
+        print("Loss plot saved as loss_plot.png")

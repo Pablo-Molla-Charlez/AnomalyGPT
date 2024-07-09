@@ -123,6 +123,7 @@ def apply_rotary_pos_emb(q, k, cos, sin, position_ids):
     return q_embed, k_embed
 
 
+""" ORIGINAL Class LlamaMLP
 class LlamaMLP(nn.Module):
     def __init__(
         self,
@@ -138,6 +139,33 @@ class LlamaMLP(nn.Module):
 
     def forward(self, x):
         return self.down_proj(self.act_fn(self.gate_proj(x)) * self.up_proj(x))
+        
+"""
+
+""" NEW ClassMLP """
+class LlamaMLP(nn.Module):
+    def __init__(
+        self,
+        hidden_size: int, #4096
+        intermediate_size: int, #11008
+        hidden_act: str, #silu is the activation function
+        dropout_rate: float = 0.1, # Adding dropout hyper-parameter
+    ):
+        super().__init__()
+        self.gate_proj = nn.Linear(hidden_size, intermediate_size, bias=False)
+        self.down_proj = nn.Linear(intermediate_size, hidden_size, bias=False)
+        self.up_proj = nn.Linear(hidden_size, intermediate_size, bias=False)
+        self.act_fn = ACT2FN[hidden_act]
+        self.dropout = nn.Dropout(dropout_rate) # defining attribute for dropout layer
+        #self.layer_norm = nn.LayerNorm(intermediate_size) # defining attribute for normalization
+
+    def forward(self, x):
+        gate_output = self.gate_proj(x)
+        up_output = self.up_proj(x)
+        activated_output = self.act_fn(gate_output) * up_output
+        #normed_output = self.layer_norm(activated_output) # Adding normalization layer
+        dropped_output = self.dropout(activated_output) # Adding dropout layer
+        return self.down_proj(dropped_output) 
 
 
 class LlamaAttention(nn.Module):
@@ -243,6 +271,8 @@ class LlamaDecoderLayer(nn.Module):
         )
         self.input_layernorm = LlamaRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
         self.post_attention_layernorm = LlamaRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
+        #self.batch_norm1 = nn.BatchNorm1d(config.hidden_size) # adding first normalization layer
+        #self.batch_norm2 = nn.BatchNorm1d(config.hidden_size) # adding second normalization layer
 
     def forward(
         self,
@@ -280,13 +310,17 @@ class LlamaDecoderLayer(nn.Module):
             output_attentions=output_attentions,
             use_cache=use_cache,
         )
+        
         hidden_states = residual + hidden_states
+        #print(f" \s--------------------------------SHAPE: {hidden_states.shape} -------------------------------- \s")
+        #hidden_states = self.batch_norm1(hidden_states.transpose(1, 2)).transpose(1,2)
 
         # Fully Connected
         residual = hidden_states
         hidden_states = self.post_attention_layernorm(hidden_states)
         hidden_states = self.mlp(hidden_states)
         hidden_states = residual + hidden_states
+        #hidden_states = self.batch_norm2(hidden_states.transpose(1, 2)).transpose(1,2)
 
         outputs = (hidden_states,)
 
@@ -411,6 +445,9 @@ LLAMA_INPUTS_DOCSTRING = r"""
     "The bare LLaMA Model outputting raw hidden-states without any specific head on top.",
     LLAMA_START_DOCSTRING,
 )
+
+
+
 class LlamaModel(LlamaPreTrainedModel):
     """
     Transformer decoder consisting of *config.num_hidden_layers* layers. Each layer is a [`LlamaDecoderLayer`]

@@ -30,7 +30,7 @@ Explanation:
   <img src="figs/step_1_create_container.png" width="900">
 </p>
 
-The errors that appear are due to the fact that, the current available GPUs are being used for another training, however, the container is created.
+Make sure to not create the new container while using the GPUs, otherwise the container won't be able to be correctly created and used, especially due to the argument `--gpus all`.
 
 Use/open the container's shell.
 ```

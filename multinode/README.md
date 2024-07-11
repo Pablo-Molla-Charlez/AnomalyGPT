@@ -25,6 +25,11 @@ Explanation:
       - `:rw`: Mounts the directory with read-write permissions, allowing both the host and container to read and write to this directory.
 10. `huggingface/transformers-pytorch-gpu`: The Docker image to use for creating the container. This specific image is from Hugging Face, configured with PyTorch and GPU support for running transformer models.
 
+<p align="center">
+  <img src="figs/step_1_create_container.png" width="700">
+</p>
+
+
 Use/open the container's shell.
 ```
 docker exec -it containername bash

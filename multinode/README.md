@@ -32,7 +32,7 @@ Explanation:
 
 Make sure to not create the new container while using the GPUs, otherwise the container won't be able to be correctly created and used, especially due to the argument `--gpus all`.
 
-Use/open the container's shell.
+* Open the container's shell.
 ```
 docker exec -it containername bash
 ```
@@ -54,6 +54,21 @@ pip install -r requirements.txt
 ```
 <p align="center">
   <img src="figs/requirements.png" width="900">
+</p>
+
+* Deleting original folders: code, pretrained_ckpt and images
+<p align="center">
+  <img src="figs/removing_original_folders.png" width="900">
+</p>
+
+* Copying personal code from server to container and downloaded model checkpoints
+<p align="center">
+  <img src="figs/copy_ckpt.png" width="900">
+</p>
+
+* Checking copy
+<p align="center">
+  <img src="figs/check_ckpt.png" width="900">
 </p>
 
 ## Step 2: Set up passwordless SSH login on all nodes

@@ -26,7 +26,7 @@ Explanation:
 10. `huggingface/transformers-pytorch-gpu`: The Docker image to use for creating the container. This specific image is from Hugging Face, configured with PyTorch and GPU support for running transformer models.
 
 <p align="center">
-  <img src="figs/step_1_create_container.png" width="700">
+  <img src="figs/step_1_create_container.png" width="900">
 </p>
 
 

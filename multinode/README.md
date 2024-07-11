@@ -61,15 +61,28 @@ pip install -r requirements.txt
   <img src="figs/removing_original_folders.png" width="900">
 </p>
 
-* Copying personal code from server to container and downloaded model checkpoints
+## Transfering code, pretrained_ckpt and data images
+
+* Copying downloaded model checkpoints to container
 <p align="center">
   <img src="figs/copy_ckpt.png" width="900">
 </p>
 
-* Checking copy
+* Checking copy of `/pretrained_ckpt`
 <p align="center">
   <img src="figs/check_ckpt.png" width="900">
 </p>
+
+* Copying data to container
+<p align="center">
+  <img src="figs/copy_data.png" width="900">
+</p>
+
+* Copying code to container
+<p align="center">
+  <img src="figs/copy_code.png" width="900">
+</p>
+
 
 ## Step 2: Set up passwordless SSH login on all nodes
 

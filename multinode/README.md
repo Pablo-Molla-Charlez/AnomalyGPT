@@ -30,6 +30,7 @@ Explanation:
   <img src="figs/step_1_create_container.png" width="900">
 </p>
 
+The errors that appear are due to the fact that, the current available GPUs are being used for another training, however, the container is created.
 
 Use/open the container's shell.
 ```

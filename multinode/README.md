@@ -6,7 +6,7 @@ In order to train the model AnomalyGPT more efficiently and faster, we implement
 Run the code in a docker environment.
 
 ```
-sudo docker run -idt --ipc=host --gpus all --network=host -v /home/nchc/:/workspace/:rw huggingface/transformers-pytorch-gpu
+sudo docker run -idt --ipc=host --gpus all --network=host -v /home/nchc/:/workspace/:rw --name my-container huggingface/transformers-pytorch-gpu
 ```
 
 Explanation:
@@ -23,7 +23,8 @@ Explanation:
       - `/home/nchc/`: The directory on the host machine.
       - `/workspace/`: The directory inside the container where the host directory will be mounted.
       - `:rw`: Mounts the directory with read-write permissions, allowing both the host and container to read and write to this directory.
-10. `huggingface/transformers-pytorch-gpu`: The Docker image to use for creating the container. This specific image is from Hugging Face, configured with PyTorch and GPU support for running transformer models.
+10. `--name my-container`: Names the container as "my-container".
+11. `huggingface/transformers-pytorch-gpu`: The Docker image to use for creating the container. This specific image is from Hugging Face, configured with PyTorch and GPU support for running transformer models.
 
 <p align="center">
   <img src="figs/step_1_create_container.png" width="900">

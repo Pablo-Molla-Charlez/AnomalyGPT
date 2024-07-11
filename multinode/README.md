@@ -37,12 +37,24 @@ Use/open the container's shell.
 docker exec -it containername bash
 ```
 
-* Installation of the required library
+* Cloning the AnomalyGPT repository
 ```
 apt-get update
-cd anomalygpt
+git clone https://github.com/CASIA-IVA-Lab/AnomalyGPT.git
+cd Anomalygpt
+```
+
+<p align="center">
+  <img src="figs/git_clone.png" width="900">
+</p>
+
+* Installing the required libraries
+```
 pip install -r requirements.txt
 ```
+<p align="center">
+  <img src="figs/requirements.png" width="900">
+</p>
 
 ## Step 2: Set up passwordless SSH login on all nodes
 

@@ -1,5 +1,6 @@
-# Use multi-node
-We use two A30s to complete the multi-node model training.
+# Multi-node Training Setup
+
+In order to train the model AnomalyGPT more efficiently and faster, we implemented the following configuration to correctly setup the multi-node environment.
 
 ## Step 1: Docker environment
 Run the code in a docker environment.

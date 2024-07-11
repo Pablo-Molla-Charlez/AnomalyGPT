@@ -1,6 +1,6 @@
 # Multi-node Training Setup
 
-In order to train the model AnomalyGPT more efficiently and faster, we implemented the following configuration to correctly setup the multi-node environment.
+In order to train the model AnomalyGPT more efficiently and faster, we implemented the following configuration to correctly setup the multi-node environment. We utilize two nodes based on A100 Nvidia GPUs to train the model.
 
 ## Step 1: Docker environment
 Run the code in a docker environment.
@@ -9,7 +9,23 @@ Run the code in a docker environment.
 sudo docker run -idt --ipc=host --gpus all --network=host -v /home/nchc/:/workspace/:rw huggingface/transformers-pytorch-gpu
 ```
 
-go into container
+Explanation:
+
+1. `sudo`: Runs the command with superuser (administrator) privileges. This is often necessary for Docker commands that require system-level changes or access to certain resources.
+2. `docker run`: This is the Docker command to create and start a new container from a specified Docker image.
+3. `-i (interactive)`: Keeps the container running so you can interact with it. This is useful when you need to keep the standard input open.
+4. `-d (detached)`: Runs the container in the background and prints the container ID. This means the container will run as a daemon process.
+5. `-t (tty)`: Allocates a pseudo-TTY (teletypewriter), which allows you to interact with the container through the terminal.
+6. `--ipc=host`: Shares the host’s IPC (Inter-Process Communication) namespace with the container. This can improve the performance of certain operations that rely on shared memory, but it can also pose security risks.
+7. `--gpus all`: Makes all the GPUs on the host machine available to the container. This is necessary for running GPU-accelerated applications inside the container.
+8. `--network=host`: Uses the host's network stack inside the container. This means the container shares the network configuration of the host machine, allowing for improved network performance and easier networking configuration.
+9. `-v /home/nchc/:/workspace/:rw`: Mounts a volume from the host machine to the container.
+      - `/home/nchc/`: The directory on the host machine.
+      - `/workspace/`: The directory inside the container where the host directory will be mounted.
+      - `:rw`: Mounts the directory with read-write permissions, allowing both the host and container to read and write to this directory.
+10. `huggingface/transformers-pytorch-gpu`: The Docker image to use for creating the container. This specific image is from Hugging Face, configured with PyTorch and GPU support for running transformer models.
+
+Use/open the container's shell.
 ```
 docker exec -it containername bash
 ```

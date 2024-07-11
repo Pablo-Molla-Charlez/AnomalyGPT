@@ -1,6 +1,6 @@
 # Multi-node Training Setup
 
-In order to train the model AnomalyGPT more efficiently and faster, we implemented the following configuration to correctly setup the multi-node environment. We utilize two nodes based on A100 Nvidia GPUs to train the model. Bear in mind that the docker environment with all its configurations as well as information (model, data, checkpoints) needs to be set up equally for each node, therefore in our case, we need to repeat the process twice.
+In order to train the model AnomalyGPT more efficiently and faster, we implemented the following configuration to correctly setup the multi-node environment. We utilize two nodes based on A100 Nvidia GPUs to train the model. Bear in mind that the docker environment with all its configurations as well as information (model, data, checkpoints) needs to be set up equally for each node, therefore in our case, we need to *repeat the process twice*.
 
 ## Step 1: Docker environment
 Run the code in a docker environment.

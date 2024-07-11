@@ -1,6 +1,6 @@
 # Multi-node Training Setup
 
-In order to train the model AnomalyGPT more efficiently and faster, we implemented the following configuration to correctly setup the multi-node environment. We utilize two nodes based on A100 Nvidia GPUs to train the model. Bear in mind that the docker environment with all its configurations as well as information (model, data, checkpoints) needs to be set up equally for each node, therefore in our case, we need to *repeat the process twice*.
+In order to train the model AnomalyGPT more efficiently and faster, we implemented the following configuration to correctly setup the multi-node environment. We utilize two nodes based on A100 Nvidia GPUs to train the model. Bear in mind that the docker environment with all its configurations as well as information (model, data, checkpoints) needs to be set up equally for each node, therefore in our case, we need to `repeat the process twice`.
 
 ## Step 1: Docker environment
 Run the code in a docker environment.
@@ -61,7 +61,7 @@ pip install -r requirements.txt
   <img src="figs/removing_original_folders.png" width="900">
 </p>
 
-## Transfering code, pretrained_ckpt and data images
+### Transfering code, pretrained_ckpt and data images
 
 * Copying downloaded model checkpoints to container
 <p align="center">
@@ -83,8 +83,58 @@ pip install -r requirements.txt
   <img src="figs/copy_code.png" width="900">
 </p>
 
+### Warning: If the message "No space left" is shown while trying to install or copy data into the container, you can proceed as follows, if not, skip directly to Step 2.
+
+1. Stop the Docker Service
+First, stop the Docker service:
+
+```
+sudo systemctl stop docker
+```
+
+2. Create a New Docker Directory
+Create a new directory to store Docker data. For example, to store data in /work/docker:
+```
+sudo mkdir -p /mnt/new-disk/docker
+```
+
+<p align="center">
+  <img src="figs/sol_space_1.png" width="900">
+</p>
+
+3. Modify Docker Configuration File
+Edit Docker's configuration file /etc/docker/daemon.json (create it if it doesn't exist):
+
+```
+sudo nano /etc/docker/daemon.json
+```
+Add or modify the following content to set `data-root` to new path: {"data-root": "/mnt/new-disk/docker"}
+
+<p align="center">
+  <img src="figs/sol_space_2_modif_daemon.png" width="900">
+</p>
+
+4. Migrate Existing Docker Data
+Migrate existing Docker data from the old path (typically /var/lib/docker) to the new path:
+```
+sudo rsync -aP /var/lib/docker/ /mnt/new-disk/docker/
+```
+It usually takes a while.
+
+5. Restart the Docker Service
+```
+sudo systemctl start docker
+```
+
+6. Verify Configuration Modifications
+```
+docker info | grep "Docker Root Dir"
+```
+The output should be the new path, such as /work/docker.
+
 
 ## Step 2: Set up passwordless SSH login on all nodes
+
 
 Ensure Passwordless SSH Login
 * Installation of the required tools, make sure that each node (master and worker) has installed the following tools inside the container.

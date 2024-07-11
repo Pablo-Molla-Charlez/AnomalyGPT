@@ -2,6 +2,10 @@
 
 In order to train the model AnomalyGPT more efficiently and faster, we implemented the following configuration to correctly setup the multi-node environment. We utilize two nodes based on A100 Nvidia GPUs to train the model. Bear in mind that the docker environment with all its configurations as well as information (model, data, checkpoints) needs to be set up equally for each node, therefore in our case, we need to `repeat the process twice`.
 
+The IP nodes which will be used are: 140.110.18.89 and 140.110.18.91
+The following commands are performed originally in the node 89.
+
+
 ## Step 1: Docker environment
 Run the code in a docker environment.
 
@@ -85,6 +89,10 @@ pip install -r requirements.txt
 
 ### Warning: If the message "No space left" is shown while trying to install or copy data into the container, you can proceed as follows, if not, skip directly to Step 2.
 
+<p align="center">
+  <img src="figs/no_space_error.png" width="900">
+</p>
+
 1. Stop the Docker Service
 First, stop the Docker service:
 
@@ -132,6 +140,12 @@ docker info | grep "Docker Root Dir"
 ```
 The output should be the new path, such as /work/docker.
 
+7. Clean Up Old Data (Optional)
+If you confirm Docker is functioning correctly and all data has been successfully migrated, you can remove the old data directory to free up space:
+
+```
+sudo rm -rf /var/lib/docker
+```
 
 ## Step 2: Set up passwordless SSH login on all nodes
 
@@ -143,14 +157,22 @@ apt-get update
 apt install openssh-server
 ```
 
+<p align="center">
+  <img src="figs/openssh-server.png" width="900">
+</p>
+
 ```
 apt-get install net-tools
 ```
 
+* Setting root passwd
 ```
-## setting root passwd
 passwd root
 ```
+
+<p align="center">
+  <img src="figs/new_passwd.png" width="900">
+</p>
 
 * Generate an SSH key pair (if not already done):
 ```
@@ -159,10 +181,12 @@ mkdir .ssh
 ssh-keygen
 ```
 
+The file in which I chose to save the key is: /root/.ssh/node89
+
 * Add the public key to the `authorized_keys` file:
 Master node setup public key for localhost passwordless
 ```
-cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+cat ~/.ssh/node89.pub >> ~/.ssh/authorized_keys
 ```
 
 * Ensure the permissions of the .ssh directory and authorized_keys file are correct:
@@ -170,11 +194,12 @@ cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 ```
 chmod 700 ~/.ssh
 chmod 600 ~/.ssh/authorized_keys
-```
-
-```
 sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 ```
+
+<p align="center">
+  <img src="figs/permissions.png" width="900">
+</p>
 
 If you want to change the port of ssh, you can do it in the following way
 ```
@@ -184,10 +209,10 @@ service ssh restart && netstat -tulpn
 
 2. Worker Node Setting Public Key.
 Put the public key to the host you want to log in.
-
+(originally 10.250.64.30) ¿here is to 01 or to 89???
 ```
 cd .ssh
-scp -P 2222 node21.pub root@10.250.64.30:.ssh
+scp -P 2222 node89.pub root@140.110.18.89:.ssh
 ```
 
 The default file for handling public keys is

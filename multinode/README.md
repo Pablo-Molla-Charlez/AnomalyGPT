@@ -208,17 +208,16 @@ service ssh restart && netstat -tulpn
 ```
 
 2. Worker Node Setting Public Key.
-Put the public key to the host you want to log in.
-(originally 10.250.64.30) ¿here is to 01 or to 89???
+Put the public key to the host you want to log in. In this case, we created the public/private keys for node 89, therefore we want them to be sent to node 91.
+
 ```
 cd .ssh
-scp -P 2222 node89.pub root@140.110.18.89:.ssh
+scp -P 2222 node89.pub root@140.110.18.91:.ssh
 ```
 
-The default file for handling public keys is
-authorized_keys, so the public keys just sent must be accumulated into this file:
+The default file for handling public keys is authorized_keys, so the public keys just sent must be stored into this file:
 ```
-ssh -p 2222 root@10.250.64.30
+ssh -p 2222 root@10.250.64.91
 ```
 
 

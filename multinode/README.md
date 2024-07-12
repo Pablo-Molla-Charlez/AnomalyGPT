@@ -7,7 +7,7 @@ The following commands are performed originally in the node 89.
 
 
 ## Step 1: Docker environment
-Run the code in a docker environment.
+Run the code in a docker environment. As we will be training in two nodes, each node must have its own container, created under the same arguments.
 
 ```
 sudo docker run -idt --ipc=host --gpus all --network=host -v /home/nchc/:/workspace/:rw --name my-container huggingface/transformers-pytorch-gpu
@@ -31,14 +31,15 @@ Explanation:
 11. `huggingface/transformers-pytorch-gpu`: The Docker image to use for creating the container. This specific image is from Hugging Face, configured with PyTorch and GPU support for running transformer models.
 
 <p align="center">
-  <img src="figs/step_1_create_container.png" width="900">
+  <img src="figs/create_container_89.png" width="700">
+  <img src="figs/create_container_91.png" width="700">
 </p>
 
-Make sure to not create the new container while using the GPUs, otherwise the container won't be able to be correctly created and used, especially due to the argument `--gpus all`.
+Make sure to not create the new container while using the GPUs, otherwise the container won't be able to be correctly created and used, especially due to the argument `--gpus all`. That's why while creating the container in node 91, in the command execution, it wasn't included the argument `--gpus all`, but it must be present if the intention is to use multi-node training.
 
 * Open the container's shell.
 ```
-docker exec -it containername bash
+docker exec -it my-container bash
 ```
 
 * Cloning the AnomalyGPT repository
@@ -50,6 +51,12 @@ cd Anomalygpt
 
 <p align="center">
   <img src="figs/git_clone.png" width="900">
+</p>
+
+In node 91, the exact process needs to be followed because when using multi-node, both nodes need to share the exact same code, data and configurations.
+
+<p align="center">
+  <img src="figs/apt_install_openssh_91.png" width="900">
 </p>
 
 * Installing the required libraries
@@ -165,7 +172,7 @@ apt install openssh-server
 apt-get install net-tools
 ```
 
-* Setting root passwd
+* Setting root password
 ```
 passwd root
 ```
@@ -206,8 +213,8 @@ If you want to change the port of ssh, you can do it in the following way
 sed -i 's/#Port 22/Port 2222/' /etc/ssh/sshd_config
 service ssh restart && netstat -tulpn
 ```
+* Worker Node Setting Public Key.
 
-2. Worker Node Setting Public Key.
 Put the public key to the host you want to log in. In this case, we created the public/private keys for node 89, therefore we want them to be sent to node 91.
 
 ```
@@ -222,7 +229,7 @@ ssh -p 2222 root@10.250.64.91
 
 
 ```
-cat .ssh/node21.pub >> .ssh/authorized_keys
+cat .ssh/node89.pub >> .ssh/authorized_keys
 ```
 
 Ensure the permissions of the .ssh directory and authorized_keys file are correct:

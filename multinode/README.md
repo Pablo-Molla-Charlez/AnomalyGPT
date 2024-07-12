@@ -208,6 +208,10 @@ Master node setup public key for localhost passwordless
 ```
 cat ~/.ssh/node89.pub >> ~/.ssh/authorized_keys
 ```
+To check that it is included use cat:
+<p align="center">
+  <img src="figs/public_password_masked.png" width="900">
+</p>
 
 * Ensure the permissions of the .ssh directory and authorized_keys file are correct:
 

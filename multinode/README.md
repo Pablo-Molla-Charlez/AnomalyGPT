@@ -286,40 +286,45 @@ ll .ssh/authorized_keys
 
 Make sure that you can read (r) and write (w).
 
-Finish and leave.
+* Finish and leave.
 ```
 exit
 ```
 
+You should have just exited the ssh connection to node 91, and still remain in node 89's container.
+
 ## Step 3: Create config file with direct ssh name
+Within the container in node 89, install vim because we need to create a configuration file to store the different hosts. Only the master node has to create this file. No need for the workers.
+
+<p align="center">
+  <img src="figs/install_vim_in_89.png" width="900">
+</p>
 
 ```
 cd .ssh
-apt install nano
-nano config
+apt install vim
+vim config
 ```
 
-config file:
+The content of config file is:
 
 ```
-Host my-30
-    HostName 10.250.64.30
+Host my-container91
+    HostName 140.110.18.91
     User root
-    IdentityFile ~/.ssh/a30ip31
-    Port 2222
-
-Host my-21
-    HostName 10.250.64.21
-    User root
-    IdentityFile ~/.ssh/a30ip31
+    IdentityFile ~/.ssh/node89
     Port 2222
 
 Host localhost
-    HostName 10.250.64.31
+    HostName 140.110.18.89
     User root
-    IdentityFile ~/.ssh/a30ip31
+    IdentityFile ~/.ssh/node89
     Port 2222
 ```
+
+<p align="center">
+  <img src="figs/config_89_to_91.png" width="900">
+</p>
 
 * Restart the SSH service:
 
@@ -327,31 +332,40 @@ Host localhost
 service restart ssh
 ```
 
+<p align="center">
+  <img src="figs/restart.png" width="900">
+</p>
+
 * Verify passwordless SSH login:
 ```
 ssh localhost
-ssh my-21
-ssh my-30
+ssh my-container91
 ```
 
-## Setp 5: Set Up the Hostfile for deepspeed
-Create a hostfile that lists all participating nodes and their GPU counts. Assuming host and worker are the hostnames or IP addresses of your master and worker nodes:
+## Step 5: Set Up the Hostfile for deepspeed
+Create a hostfile that lists all participating nodes and their GPU counts. You can install vim (this time in node 91), and create the file.
 
-However, it is important to make sure that each worker node has the same code and directory as the master node.
+<p align="center">
+  <img src="figs/install_vim_91.png" width="900">
+</p>
 
-The hostfile can be placed in any directory.
-hostfile:
+The hostfile can be placed in any directory and to include the previously mentioned content (slots describes the number of GPUs) hostfile:
 ```
-localhost slots=2
-my-30 slots=2
+localhost slots=1
+my-container91 slots=1
 ```
+<p align="center">
+  <img src="figs/hostfile_1_gpu_per_node.png" width="900">
+</p>
 
-## Setp 6: Confirm Environment Variables are Loaded
+This is the end of the tutorial.
+
+## Step 6 (Optional): Confirm Environment Variables are Loaded
 This step can be skipped if there is no problem.
 
 * Set the correct environment variables in your `.bashrc` or `.bash_profile` file:
     
-```bash
+```
 nano ~/.bashrc
 ```
 Add the required environment variables, for example:
@@ -377,7 +391,7 @@ sudo ufw disable
 ```
 
 
-## Setp 7: Start DeepSpeed Multi-Node Training
+## Step 7: Start DeepSpeed Multi-Node Training
 Run the DeepSpeed command on the master node (host), specifying the location of the hostfile and other relevant parameters:
 
 ```

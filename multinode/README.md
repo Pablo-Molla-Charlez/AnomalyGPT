@@ -53,11 +53,7 @@ cd Anomalygpt
   <img src="figs/git_clone.png" width="900">
 </p>
 
-In node 91, the exact process needs to be followed because when using multi-node, both nodes need to share the exact same code, data and configurations.
-
-<p align="center">
-  <img src="figs/apt_install_openssh_91.png" width="900">
-</p>
+In node 91, the exact process needs to be followed inside its container, because when using multi-node, both nodes need to share the exact same code, data, configurations as well as libraries.
 
 * Installing the required libraries
 ```
@@ -158,7 +154,7 @@ sudo rm -rf /var/lib/docker
 
 
 Ensure Passwordless SSH Login
-* Installation of the required tools, make sure that each node (master and worker) has installed the following tools inside the container.
+* Installation of the required tools, make sure that each node (master (Node 89) and worker (Node 91) has installed the following tools inside the container.
 ```
 apt-get update
 apt install openssh-server
@@ -168,17 +164,28 @@ apt install openssh-server
   <img src="figs/openssh-server.png" width="900">
 </p>
 
+Follow the same process within node's 91 container:
+
+<p align="center">
+  <img src="figs/apt_install_openssh_91.png" width="900">
+</p>
+
+Once again, both containers need to have openssh-server and net-tools. 
+
 ```
 apt-get install net-tools
 ```
+<p align="center">
+  <img src="figs/apt_install_net-tools_91.png" width="900">
+</p>
 
-* Setting root password
+* Setting root password: To make it easier, select the same password for both containers.
 ```
 passwd root
 ```
-
+In container within node 89:
 <p align="center">
-  <img src="figs/new_passwd.png" width="900">
+  <img src="figs/new_passwd_89.png" width="900">
 </p>
 
 * Generate an SSH key pair (if not already done):
@@ -189,6 +196,12 @@ ssh-keygen
 ```
 
 The file in which I chose to save the key is: /root/.ssh/node89
+The file /root/.ssh/node91 repectively for container in node 91.
+
+In container within node 91:
+<p align="center">
+  <img src="figs/new_passwd_91.png" width="900">
+</p>
 
 * Add the public key to the `authorized_keys` file:
 Master node setup public key for localhost passwordless

@@ -1,4 +1,4 @@
-# Multi-node Training Setup
+<img width="397" alt="image" src="https://github.com/user-attachments/assets/a8570407-393c-4797-881f-851a2a9ce225"># Multi-node Training Setup
 
 In order to train the model AnomalyGPT more efficiently and faster, we implemented the following configuration to correctly setup the multi-node environment. We utilize two nodes based on A100 Nvidia GPUs to train the model. Bear in mind that the docker environment with all its configurations as well as information (model, data, checkpoints) needs to be set up equally for each node, therefore in our case, we need to `repeat the process twice`.
 
@@ -236,36 +236,55 @@ service ssh restart && netstat -tulpn
 
 * Worker Node Setting Public Key.
 
-Put the public key to the host you want to log in. In this case, we created the public/private keys for node 89, therefore we want them to be sent to node 91.
+In order to define node 89 as the master, the node 91 must have the public key from the node 89 and to do such thing, put the public key to the host you want to log in. 
+In this case, we created the public/private keys for node 89, therefore we want them to be sent to node 91 from the container in node 89.
 
 ```
 cd .ssh
 scp -P 2222 node89.pub root@140.110.18.91:.ssh
 ```
 
-The default file for handling public keys is authorized_keys, so the public keys just sent must be stored into this file:
-```
-ssh -p 2222 root@10.250.64.91
-```
+<p align="center">
+  <img src="figs/node_89_master.png" width="900">
+</p>
 
+The default file for handling public keys is authorized_keys, so the public keys just sent must be stored into this file. 
+Basically, to allow the connection between the container from node 91 and node 89, the port number needs to be specified as well as include the node's 89 public key into the authorized keys within the container from node 91.
+```
+ssh -p 2222 root@140.110.18.91
+```
+<p align="center">
+  <img src="figs/port_2222_from_89_to_91.png" width="900">
+</p>
 
+To check that it's actually connected to node 91:
+
+<p align="center">
+  <img src="figs/check_hostname.png" width="900">
+</p>
+
+Now, inside the container from node 91 we authorize node 89:
 ```
 cat .ssh/node89.pub >> .ssh/authorized_keys
 ```
+<p align="center">
+  <img src="figs/auth_89 _in_91.png" width="900">
+</p>
 
-Ensure the permissions of the .ssh directory and authorized_keys file are correct:
+* Ensure the permissions of the .ssh directory and authorized_keys file are correct and check the authority (still within 91's container that we connected via the container in node 89):
 
 ```
 chmod 700 .ssh/ 
 chmod 644 .ssh/authorized_keys 
-```
-
-check the authority
-
-```
 ll -d .ssh
 ll .ssh/authorized_keys 
 ```
+
+<p align="center">
+  <img src="figs/chmod_91.png" width="900">
+</p>
+
+Make sure that you can read (r) and write (w).
 
 Finish and leave.
 ```

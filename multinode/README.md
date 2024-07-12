@@ -213,7 +213,7 @@ To check that it is included use cat:
   <img src="figs/public_password_masked.png" width="900">
 </p>
 
-* Ensure the permissions of the .ssh directory and authorized_keys file are correct:
+* Ensure the permissions of the .ssh directory and authorized_keys file are correct in both containers:
 
 ```
 chmod 700 ~/.ssh
@@ -225,11 +225,15 @@ sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd
   <img src="figs/permissions.png" width="900">
 </p>
 
-If you want to change the port of ssh, you can do it in the following way
+If you want to change the port of ssh, you can do it in the following way:
 ```
 sed -i 's/#Port 22/Port 2222/' /etc/ssh/sshd_config
 service ssh restart && netstat -tulpn
 ```
+<p align="center">
+  <img src="figs/change_port_ready_listen_91.png" width="900">
+</p>
+
 * Worker Node Setting Public Key.
 
 Put the public key to the host you want to log in. In this case, we created the public/private keys for node 89, therefore we want them to be sent to node 91.

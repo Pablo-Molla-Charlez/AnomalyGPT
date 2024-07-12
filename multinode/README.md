@@ -341,13 +341,12 @@ service restart ssh
 ssh localhost
 ssh my-container91
 ```
+<p align="center">
+  <img src="figs/ssh_check.png" width="900">
+</p>
 
 ## Step 5: Set Up the Hostfile for deepspeed
-Create a hostfile that lists all participating nodes and their GPU counts. You can install vim (this time in node 91), and create the file.
-
-<p align="center">
-  <img src="figs/install_vim_91.png" width="900">
-</p>
+Create a hostfile that lists all participating nodes and their GPU counts. As with `config`, this file needs to be as well in the master node 89, inside the container
 
 The hostfile can be placed in any directory and to include the previously mentioned content (slots describes the number of GPUs) hostfile:
 ```

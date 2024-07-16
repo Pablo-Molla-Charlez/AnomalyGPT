@@ -328,7 +328,7 @@ Host localhost
 * Restart the SSH service:
 
 ```
-service restart ssh
+service ssh restart
 ```
 
 <p align="center">

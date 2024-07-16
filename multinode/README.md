@@ -296,15 +296,14 @@ You should have just exited the ssh connection to node 91, and still remain in n
 ## Step 3: Create config file with direct ssh name
 Within the container in node 89, install vim because we need to create a configuration file to store the different hosts. Only the master node has to create this file. No need for the workers.
 
-<p align="center">
-  <img src="figs/install_vim_in_89.png" width="900">
-</p>
-
 ```
 cd .ssh
 apt install vim
 vim config
 ```
+<p align="center">
+  <img src="figs/install_vim_in_89.png" width="900">
+</p>
 
 The content of config file is:
 

@@ -179,6 +179,12 @@ apt-get install net-tools
   <img src="figs/apt_install_net-tools_91.png" width="900">
 </p>
 
+* Install as well pdsh in both containers and update the apt:
+```
+apt-get install pdsh
+apt-get update
+```
+
 * Setting root password: To make it easier, select the same password for both containers.
 ```
 passwd root

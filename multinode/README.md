@@ -25,7 +25,7 @@ Explanation:
 8. `--network=host`: Uses the host's network stack inside the container. This means the container shares the network configuration of the host machine, allowing for improved network performance and easier networking configuration.
 9. `-v /home/nchc/:/workspace/:rw`: Mounts a volume from the host machine to the container.
       - `/home/nchc/`: The directory on the host machine.
-      - `/workspace/`: The directory inside the container where the host directory will be mounted.
+      - `/workspace/`: The directory inside the container where the host directory will be mounted. This directory must be the same in both containers.
       - `:rw`: Mounts the directory with read-write permissions, allowing both the host and container to read and write to this directory.
 10. `--name my-container`: Names the container as "my-container".
 11. `huggingface/transformers-pytorch-gpu`: The Docker image to use for creating the container. This specific image is from Hugging Face, configured with PyTorch and GPU support for running transformer models.

@@ -32,7 +32,6 @@ Explanation:
 
 <p align="center">
   <img src="figs/create_container_89.png" width="700">
-  <img src="figs/create_container_91.png" width="700">
 </p>
 
 Make sure to not create the new container while using the GPUs, otherwise the container won't be able to be correctly created and used, especially due to the argument `--gpus all`. That's why while creating the container in node 91, in the command execution, it wasn't included the argument `--gpus all`, but it must be present if the intention is to use multi-node training.
@@ -41,6 +40,9 @@ Make sure to not create the new container while using the GPUs, otherwise the co
 ```
 docker exec -it my-container bash
 ```
+<p align="center">
+  <img src="figs/create_container_91.png" width="700">
+</p>
 
 * Cloning the AnomalyGPT repository
 ```

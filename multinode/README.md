@@ -116,7 +116,7 @@ sudo mkdir -p /mnt/new-disk/docker
 </p>
 
 3. Modify Docker Configuration File:
-Edit Docker's configuration file /etc/docker/daemon.json (create it if it doesn't exist):
+Third, edit Docker's configuration file /etc/docker/daemon.json (create it if it doesn't exist):
 
 ```
 sudo nano /etc/docker/daemon.json
@@ -127,25 +127,25 @@ Add or modify the following content to set `data-root` to new path: {"data-root"
   <img src="figs/sol_space_2_modif_daemon.png" width="900">
 </p>
 
-4. Migrate Existing Docker Data
-Migrate existing Docker data from the old path (typically /var/lib/docker) to the new path:
+4. Migrate Existing Docker Data:
+Fourth, migrate existing Docker data from the old path (typically /var/lib/docker) to the new path:
 ```
 sudo rsync -aP /var/lib/docker/ /mnt/new-disk/docker/
 ```
 It usually takes a while.
 
-5. Restart the Docker Service
+5. Restart the Docker Service.
 ```
 sudo systemctl start docker
 ```
 
-6. Verify Configuration Modifications
+6. Verify Configuration Modifications.
 ```
 docker info | grep "Docker Root Dir"
 ```
 The output should be the new path, such as /work/docker.
 
-7. Clean Up Old Data (Optional)
+7. Clean Up Old Data (Optional):
 If you confirm Docker is functioning correctly and all data has been successfully migrated, you can remove the old data directory to free up space:
 
 ```

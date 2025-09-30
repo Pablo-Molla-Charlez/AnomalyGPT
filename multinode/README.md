@@ -98,15 +98,15 @@ pip install -r requirements.txt
   <img src="figs/no_space_error.png" width="900">
 </p>
 
-1. Stop the Docker Service
-First, stop the Docker service:
+1. Stop the Docker Service:
+First, stop the Docker service.
 
 ```
 sudo systemctl stop docker
 ```
 
-2. Create a New Docker Directory
-Create a new directory to store Docker data. For example, to store data in /work/docker:
+2. New Docker Directory:
+Second, create a new directory to store Docker data. For example, to store data in /work/docker:
 ```
 sudo mkdir -p /mnt/new-disk/docker
 ```
@@ -115,7 +115,7 @@ sudo mkdir -p /mnt/new-disk/docker
   <img src="figs/sol_space_1.png" width="900">
 </p>
 
-3. Modify Docker Configuration File
+3. Modify Docker Configuration File:
 Edit Docker's configuration file /etc/docker/daemon.json (create it if it doesn't exist):
 
 ```
